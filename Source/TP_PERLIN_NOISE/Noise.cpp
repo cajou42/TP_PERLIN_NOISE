@@ -20,6 +20,7 @@ ANoise::ANoise()
 
 	RootComponent = Mesh;
 
+	// Generate Permutation Table to determinate gradient vector
 	GeneratePermutationTable(FMath::Rand32());
 
 }
@@ -63,6 +64,7 @@ void ANoise::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Defining the asset path
 	FString AssetPath = FPaths::ProjectContentDir();
 	FString AssetName = TEXT("NoiseTexture");
 	FString PackagePath = TEXT("/Game/LevelPrototyping/Textures/") + AssetName;
@@ -71,6 +73,7 @@ void ANoise::BeginPlay()
 	NoiseTexture = NewObject<UTexture2D>(Package, FName(AssetName), RF_Public | RF_Standalone);
 	NoiseTexture->Source.Init(GridSize, GridSize, 1, 1, TSF_BGRA8);
 
+	// For each pixel in the texture we apply the perlin noise fonction
 	for(float x = 0.0f; x < GridSize; ++x)
 	{
 		for(float y = 0.0f; y < GridSize; ++y)
@@ -90,16 +93,16 @@ void ANoise::BeginPlay()
 
 			PerlinValue *= 1.2;
 
-			// If the perlin value is not between 1 and -1
+			// If the perlin value is not between 1 and -1 (Clamp)
 			if (PerlinValue > 1.0f)
 				PerlinValue = 1.0f;
 			else if (PerlinValue < -1.0f)
 				PerlinValue = -1.0f;
 
-			// Convert noise result into color value
+			// Convert noise result into color value (Greyscale)
 			uint8_t Color = (uint8_t)(((PerlinValue + 1.0f) * 0.5f) * 255);
 
-			// Set pixels values
+			// Set pixels values (in the format RGBA)
 			Pixels.Add(Color);
 			Pixels.Add(Color);
 			Pixels.Add(Color);
@@ -112,6 +115,7 @@ void ANoise::BeginPlay()
 	FAssetRegistryModule::AssetCreated(NoiseTexture);
 	NoiseTexture->MarkPackageDirty();
 
+	// Creating asset in the editor
 	FString FilePath = FString::Printf(TEXT("%s%s%s"), *AssetPath, *AssetName, *FPackageName::GetAssetPackageExtension());
 	bool IsSuccess = UPackage::SavePackage(Package, NoiseTexture, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, *FilePath);
 
@@ -132,7 +136,6 @@ float ANoise::DotProduct(int ix, int iy, float x, float y)
 // Get Normalize vector value with a given value from the permutation table
 FVector2D ANoise::GetConstantVector(int32 v)
 {
-	// v is the value from the permutation table
 	const int32 h = v & 3;
 	if (h == 0)
 		return FVector2D(1.0, 1.0);
@@ -143,6 +146,7 @@ FVector2D ANoise::GetConstantVector(int32 v)
 	return FVector2D(1.0, -1.0);
 }
 
+// Fonction that execute perlin noise logic, take the position x and y of the pixel in the texture
 float ANoise::Perlin(float x, float y)
 {
 	// Upper left and Bottom left corners of the cell
