@@ -66,7 +66,7 @@ void ANoise::BeginPlay()
 
 	// Defining the asset path
 	FString AssetPath = FPaths::ProjectContentDir();
-	FString AssetName = TEXT("NoiseTexture");
+	FString AssetName = FString::Printf(TEXT("NoiseTexture_%s"), *FGuid::NewGuid().ToString());
 	FString PackagePath = TEXT("/Game/LevelPrototyping/Textures/") + AssetName;
 
 	UPackage* Package = CreatePackage(*PackagePath);
@@ -116,6 +116,7 @@ void ANoise::BeginPlay()
 	NoiseTexture->MarkPackageDirty();
 
 	// Creating asset in the editor
+
 	FString FilePath = FString::Printf(TEXT("%s%s%s"), *AssetPath, *AssetName, *FPackageName::GetAssetPackageExtension());
 	bool IsSuccess = UPackage::SavePackage(Package, NoiseTexture, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, *FilePath);
 
@@ -207,25 +208,6 @@ void ANoise::WriteDataToTexture(UTexture2D* Texture, const TArray<uint8_t>& Colo
 	Texture->CompressionSettings = TC_Grayscale; // Use default compression for regular textures
 	Texture->PostEditChange(); // Apply changes to the asset
 	Texture->UpdateResource();
-}
-
-// Fonction that save a 2D Texture in the engine content drawer
-void ANoise::SaveTexture()
-{
-	// Defining path
-	FString AssetPath = FPaths::ProjectContentDir();
-	FString AssetName = TEXT("NoiseTexture");
-	FString PackagePath = TEXT("/Game/LevelPrototyping/Textures/") + AssetName;
-
-	// Create package an assign texture to it
-	UPackage* Package = CreatePackage(*PackagePath);
-	FAssetRegistryModule::AssetCreated(NoiseTexture);
-	NoiseTexture->MarkPackageDirty();
-
-	// Save Package
-	FString FilePath = FString::Printf(TEXT("%s%s%s"), *AssetPath, *AssetName, *FPackageName::GetAssetPackageExtension());
-	bool IsSuccess = UPackage::SavePackage(Package, NoiseTexture, EObjectFlags::RF_Public | EObjectFlags::RF_Standalone, *FilePath);
-
 }
 
 // Interpolation Weight

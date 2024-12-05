@@ -32,7 +32,6 @@ protected:
 
 	void WriteDataToTexture(UTexture2D* Texture, const TArray<uint8_t>& ColorData, int32 Width, int32 Height);
 
-	void SaveTexture();
 	float Fade(float t);
 	float Lerp(float t, float a1, float a2);
 
